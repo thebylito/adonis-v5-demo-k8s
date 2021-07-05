@@ -17,9 +17,17 @@
 | import './routes/customer'
 |
 */
+import HealthCheck from '@ioc:Adonis/Core/HealthCheck'
 
 import Route from '@ioc:Adonis/Core/Route'
 
 Route.get('/', async () => {
   return { hello: 'world' }
+})
+
+Route.get('/health', async ({ response }) => {
+  const isLive = await HealthCheck.isLive()
+  return isLive
+    ? response.status(200).send({ message: 'Ok' })
+    : response.status(500).send({ message: 'Not ready' })
 })

@@ -25,10 +25,10 @@ spec:
               memory: 100Mi
           ports:
             - containerPort: 3333
-          # livenessProbe:
-          #   httpGet:
-          #     path: /api/v1/health
-          #     port: 3333
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 3333
           envFrom:
             - configMapRef:
                 name: my-application-back-conf # Arquivo em diretorio separado...
@@ -37,7 +37,12 @@ spec:
             postStart:
               exec:
                 # Roda migracoes apenas na instancia de gravacao
-                command: ['/bin/sh', '-c', 'MYSQL_READ_HOST=$MYSQL_HOST node ace migration:run --force']
+                command:
+                  [
+                    "/bin/sh",
+                    "-c",
+                    "MYSQL_READ_HOST=$MYSQL_HOST node ace migration:run --force",
+                  ]
       # Necessario para apontar ao registro do github
       imagePullSecrets:
         - name: registry-github
