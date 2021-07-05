@@ -33,11 +33,11 @@ spec:
             - configMapRef:
                 name: my-application-back-conf # Arquivo em diretorio separado...
           # Ativar apenas apos configuracao da base de dados
-          # lifecycle:
-          #   postStart:
-          #     exec:
-          #       # Roda migracoes apenas na instancia de gravacao
-          #       command: ['/bin/sh', '-c', 'MYSQL_READ_HOST=$MYSQL_HOST node ace migration:run --force']
+          lifecycle:
+            postStart:
+              exec:
+                # Roda migracoes apenas na instancia de gravacao
+                command: ['/bin/sh', '-c', 'MYSQL_READ_HOST=$MYSQL_HOST node ace migration:run --force']
       # Necessario para apontar ao registro do github
       imagePullSecrets:
         - name: registry-github

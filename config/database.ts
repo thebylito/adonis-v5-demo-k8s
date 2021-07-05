@@ -50,7 +50,7 @@ const databaseConfig: DatabaseConfig = {
           connection: [
             {
               timezone: Env.get('DB_TZ') as string,
-              host: Env.get('DB_READ_HOST', Env.get('MYSQL_HOST')) as string,
+              host: Env.get('MYSQL_READ_HOST', Env.get('MYSQL_HOST')) as string,
               port: Number(Env.get('MYSQL_PORT', 3306)),
               user: Env.get('MYSQL_USER', 'lucid') as string,
               password: Env.get('MYSQL_PASSWORD', 'lucid') as string,
