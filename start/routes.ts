@@ -27,7 +27,11 @@ Route.get('/', async () => {
 
 Route.get('/health', async ({ response }) => {
   const isLive = await HealthCheck.isLive()
+  // TODO
+  // if Key, return report
+  //const report = await HealthCheck.getReport()
+  //return isLive ? response.status(200).send(report) : response.status(500).send(report)
   return isLive
-    ? response.status(200).send({ message: 'Ok' })
-    : response.status(500).send({ message: 'Not ready' })
+    ? response.status(200).send({ health: isLive })
+    : response.status(500).send({ health: isLive })
 })

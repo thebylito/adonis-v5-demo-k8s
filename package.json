@@ -12,6 +12,7 @@
   "dependencies": {
     "@adonisjs/core": "^5.1.0",
     "@adonisjs/lucid": "^15.0.3",
+    "@adonisjs/redis": "^7.0.7",
     "@adonisjs/repl": "^3.0.0",
     "luxon": "^1.27.0",
     "mysql2": "^2.2.5",

@@ -29,6 +29,10 @@ spec:
             httpGet:
               path: /health
               port: 3333
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3333
           envFrom:
             - configMapRef:
                 name: my-application-back-conf # Arquivo em diretorio separado...
