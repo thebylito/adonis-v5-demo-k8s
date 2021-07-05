@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: my-application-back-ingress
@@ -15,6 +15,10 @@ spec:
     - host: my-application.thebylito.dev
       http:
         paths:
-          - backend:
-              serviceName: my-application-back-service
-              servicePort: 80
+        - pathType: Prefix
+          path: "/"
+          backend:
+            service:
+              name: my-application-back-service
+              port:
+                number: 80
