@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+  mysql:
+    image: 'mysql:5.6' # matches the Amazon Aurora MySQL version
+    command: '--default-authentication-plugin=mysql_native_password'
+    ports:
+      - '3306:3306' # forwards port 3306 to 3306 on your machine
+    environment:
+      MYSQL_ROOT_PASSWORD: root # password for root user
+      MYSQL_DATABASE: application_db # create database with name app
+  redis:
+    image: redis:alpine
+    command: redis-server --requirepass myRedisPass
+    ports:
+      - "6379:6379"
