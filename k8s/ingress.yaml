@@ -1,0 +1,20 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: my-application-back-ingress
+  namespace: thebylito
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  tls:
+    - hosts:
+        - my-application.thebylito.dev
+      secretName: my-application-thebylito-dev-tls
+  rules:
+    - host: my-application.thebylito.dev
+      http:
+        paths:
+          - backend:
+              serviceName: my-application-back-service
+              servicePort: 80

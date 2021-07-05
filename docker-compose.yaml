@@ -1,3 +1,4 @@
+# Aqui custumo deixar apenas os servicos... Ainda nao busquei uma forma de fazer o reload ser mais fluido.
 version: '3.8'
 services:
   mysql:

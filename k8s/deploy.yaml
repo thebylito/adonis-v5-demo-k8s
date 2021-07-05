@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-application-back
+  namespace: thebylito
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-application-back
+  template:
+    metadata:
+      labels:
+        app: my-application-back
+    spec:
+      containers:
+        - name: my-application-back
+          image: <IMAGE>
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              cpu: 100m
+              memory: 100Mi
+          ports:
+            - containerPort: 3333
+          # livenessProbe:
+          #   httpGet:
+          #     path: /api/v1/health
+          #     port: 3333
+          envFrom:
+            - configMapRef:
+                name: my-application-back-conf # Arquivo em diretorio separado...
+          lifecycle:
+            postStart:
+              exec:
+                # Roda migracoes apenas na instancia de gravacao
+                command: ['/bin/sh', '-c', 'MYSQL_READ_HOST=$MYSQL_HOST node ace migration:run --force']
+      # Nao necessario... Imagem publica
+      # imagePullSecrets:
+      #   - name: regcred

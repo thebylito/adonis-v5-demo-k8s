@@ -1,0 +1,12 @@
+# Esse arquivo nao fica no mesmo repo, mas... e um exemplo ne rs
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-application-back-conf
+data:
+  PORT: '3333'
+  HOST: '0.0.0.0'
+  NODE_ENV: production
+  APP_KEY: 2c8dbWFynh_oeCjcKWMJCR2ShvTAffNR
+  DB_TZ: "-3:00"
+  TZ: America/Sao_Paulo

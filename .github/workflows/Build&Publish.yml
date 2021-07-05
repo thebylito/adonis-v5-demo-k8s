@@ -1,0 +1,101 @@
+name: Build & Deploy to EKS
+
+on:
+  push:
+    # Publish `master` as Docker `latest` image.
+    # branches:
+    #   - master
+
+    # Publish `v1.2.3` tags as releases.
+    tags:
+      - v*
+
+  # Run tests for any PRs.
+  pull_request:
+
+env:
+  # Como esta sendo usada pra checar o deploy no cluster, precisa ter esse mesmo nome no deploy.yaml
+  IMAGE_NAME: my-application-back
+
+jobs:
+  push:
+    # Ensure test job passes before pushing image.
+    #needs: test
+
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: 'Configure AWS Credentials'
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: EKS Kubectl Installer
+        uses: zachguo/setup-eks-kubectl@v1
+        with:
+          # Name of your EKS cluster
+          cluster: ${{ secrets.CLUSTER_NAME }}
+          # Region of your EKS cluster
+          region: ${{ secrets.AWS_REGION }}
+
+      - name: Build image
+        run: docker build . --file Dockerfile --tag image
+
+      - name: Log into registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+
+      - name: Push image
+        continue-on-error: false
+        run: |
+          IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME
+
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+
+          # Strip "v" prefix from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+
+          # Use Docker `latest` tag convention
+          [ "$VERSION" == "master" ] && VERSION=latest
+
+          docker tag image $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+
+      - name: Update deployment file
+        continue-on-error: false
+        run: |
+          IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+
+          # Strip "v" prefix from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+
+          sed -i 's|<IMAGE>|'$IMAGE_ID':'$VERSION'|' $GITHUB_WORKSPACE/k8s/deploy.yaml
+
+      - name: Apply deployment
+        run: |
+          kubectl apply -f $GITHUB_WORKSPACE/k8s/deploy.yaml
+
+      - name: Verify deployment
+        continue-on-error: false
+        run: kubectl rollout status -f $GITHUB_WORKSPACE/k8s/deploy.yaml
+      # - name: Discord Notifier
+      #   continue-on-error: false
+      #   uses: binotaliu/action-discord-notifier@v1.2.0
+      #   with:
+      #     # A full discord webhook url
+      #     webhook: ${{ secrets.DISCORD_BOT }}
+      #     # Message title
+      #     message-title: Novo release ${{steps.get_version.outputs.IMAGE_ID}}:${{steps.get_version.outputs.VERSION}}
