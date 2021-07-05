@@ -15,6 +15,8 @@ spec:
     spec:
       containers:
         - name: my-application-back
+          ## docker.pkg.github.com/thebylito/adonis-v5-demo-k8s/my-application-back:VERSAO
+          ## nesse caso nao e preciso especificar 'imagePullSecrets'
           image: <IMAGE>
           imagePullPolicy: IfNotPresent
           resources:
