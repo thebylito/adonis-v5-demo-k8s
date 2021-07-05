@@ -5,3 +5,5 @@ coverage
 .DS_STORE
 .env
 tmp
+k8s/config-prod.yaml
+.env.prod
